@@ -78,11 +78,11 @@ func main() {
 	})
 
 
-	port := 8080
+	port := os.Getenv("PORT")
 
-	fmt.Printf("Server is running on http://localhost:%d\n", port)
+	fmt.Printf("Server is running on http://localhost:%s\n", port)
 
-	err := router.Run(fmt.Sprintf(":%d", port))
+	err := router.Run(fmt.Sprintf(":%s", port))
 	if err != nil {
 		fmt.Println("Error starting the server:", err)
 	}
