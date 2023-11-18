@@ -9,9 +9,23 @@ import (
 	"runtime"
 
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
+	coreV1 "k8s.io/api/core/v1"
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
 )
 
 func main() {
+
+
+	err := godotenv.Load()
+	if err != nil {
+			fmt.Println("Error loading .env file")
+			return
+	}
+
+
 	router := gin.Default()
 
 	router.GET("/", func(c *gin.Context) {
@@ -77,12 +91,63 @@ func main() {
 		})
 	})
 
+	router.GET("/kconf", func(c *gin.Context) {
+		config, err := rest.InClusterConfig()
+		if err != nil {
+			c.JSON(http.StatusOK, gin.H{
+				"err": err,
+			})
+
+			return
+		}
+
+		clienset, err := kubernetes.NewForConfig(config)
+		if err != nil {
+			c.JSON(http.StatusOK, gin.H{
+				"err": err,
+			})
+
+			return
+		}
+
+		// Get the current namespace from the configuration
+		namespace, err := clienset.CoreV1().Namespaces().List(c,  v1.ListOptions{})
+		if err != nil {
+			c.JSON(http.StatusOK, gin.H{
+				"err": err,
+			})
+
+			return
+		}
+
+		var p []coreV1.Pod
+
+		for _, v := range namespace.Items {
+			pods, err := clienset.CoreV1().Pods(v.Name).List(c, v1.ListOptions{})
+			if err != nil {
+				c.JSON(http.StatusOK, gin.H{
+					"err": err,
+				})
+
+				return
+			}
+
+			for _, pd := range pods.Items {
+				p = append(p, pd)
+			}
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"namespace": namespace.Items,
+			"pods": p,
+		})
+	})
 
 	port := os.Getenv("PORT")
 
 	fmt.Printf("Server is running on http://localhost:%s\n", port)
 
-	err := router.Run(fmt.Sprintf(":%s", port))
+	err = router.Run(fmt.Sprintf(":%s", port))
 	if err != nil {
 		fmt.Println("Error starting the server:", err)
 	}
