@@ -9,7 +9,6 @@ import (
 	"runtime"
 
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 	coreV1 "k8s.io/api/core/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -17,15 +16,6 @@ import (
 )
 
 func main() {
-
-
-	err := godotenv.Load()
-	if err != nil {
-			fmt.Println("Error loading .env file")
-			return
-	}
-
-
 	router := gin.Default()
 
 	router.GET("/", func(c *gin.Context) {
@@ -50,11 +40,10 @@ func main() {
 		var m runtime.MemStats
 		runtime.ReadMemStats(&m)
 
-
 		c.JSON(http.StatusOK, gin.H{
 			"cpu": runtime.NumCPU(),
-			"mem":  m.Alloc,
-			"m":  m,
+			"mem": m.Alloc,
+			"m":   m,
 		})
 	})
 
@@ -111,7 +100,7 @@ func main() {
 		}
 
 		// Get the current namespace from the configuration
-		namespace, err := clienset.CoreV1().Namespaces().List(c,  v1.ListOptions{})
+		namespace, err := clienset.CoreV1().Namespaces().List(c, v1.ListOptions{})
 		if err != nil {
 			c.JSON(http.StatusOK, gin.H{
 				"err": err,
@@ -139,15 +128,18 @@ func main() {
 
 		c.JSON(http.StatusOK, gin.H{
 			"namespace": namespace.Items,
-			"pods": p,
+			"pods":      p,
 		})
 	})
 
 	port := os.Getenv("PORT")
+	if port == "" {
+		port = "9999"
+	}
 
 	fmt.Printf("Server is running on http://localhost:%s\n", port)
 
-	err = router.Run(fmt.Sprintf(":%s", port))
+	err := router.Run(fmt.Sprintf(":%s", port))
 	if err != nil {
 		fmt.Println("Error starting the server:", err)
 	}
