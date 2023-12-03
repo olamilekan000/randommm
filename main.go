@@ -80,6 +80,40 @@ func main() {
 		})
 	})
 
+	router.GET("/ns", func(c *gin.Context) {
+		config, err := rest.InClusterConfig()
+		if err != nil {
+			c.JSON(http.StatusOK, gin.H{
+				"err": err,
+			})
+
+			return
+		}
+
+		clienset, err := kubernetes.NewForConfig(config)
+		if err != nil {
+			c.JSON(http.StatusOK, gin.H{
+				"err": err,
+			})
+
+			return
+		}
+
+		// Get the current namespace from the configuration
+		namespace, err := clienset.CoreV1().Namespaces().List(c, v1.ListOptions{})
+		if err != nil {
+			c.JSON(http.StatusOK, gin.H{
+				"err": err,
+			})
+
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"namespace": namespace.Items,
+		})
+	})
+
 	router.GET("/kconf", func(c *gin.Context) {
 		config, err := rest.InClusterConfig()
 		if err != nil {
