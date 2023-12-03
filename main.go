@@ -12,7 +12,6 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	v1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -145,30 +144,28 @@ func main() {
 			return
 		}
 
-		// Define ServiceAccount
-		serviceAccount := &v1.ServiceAccount{
-			ObjectMeta: metav1.ObjectMeta{
-				Name:      "pipeops-63484a87",
-				Namespace: "default",
-			},
-		}
+		// // Define ServiceAccount
+		// serviceAccount := &v1.ServiceAccount{
+		// 	ObjectMeta: metav1.ObjectMeta{
+		// 		Name: "pipeops-63484a87",
+		// 	},
+		// }
 
-		// Create ServiceAccount
-		createdServiceAccount, err := clientset.CoreV1().ServiceAccounts("default").Create(context.TODO(), serviceAccount, metav1.CreateOptions{})
-		if err != nil {
-			c.JSON(http.StatusOK, gin.H{
-				"err": err,
-			})
+		// // Create ServiceAccount
+		// createdServiceAccount, err := clientset.CoreV1().ServiceAccounts("default").Create(context.TODO(), serviceAccount, metav1.CreateOptions{})
+		// if err != nil {
+		// 	c.JSON(http.StatusOK, gin.H{
+		// 		"err": err,
+		// 	})
 
-			return
-		}
-		fmt.Printf("ServiceAccount created: %s\n", createdServiceAccount.Name)
+		// 	return
+		// }
+		// fmt.Printf("ServiceAccount created: %s\n", createdServiceAccount.Name)
 
 		// Define Role
 		role := &rbacv1.Role{
 			ObjectMeta: metav1.ObjectMeta{
-				Name:      "example-role",
-				Namespace: "default",
+				Name: "example-role",
 			},
 			Rules: []rbacv1.PolicyRule{
 				{
@@ -193,14 +190,12 @@ func main() {
 		// Define RoleBinding
 		roleBinding := &rbacv1.RoleBinding{
 			ObjectMeta: metav1.ObjectMeta{
-				Name:      "example-rolebinding",
-				Namespace: "default",
+				Name: "example-rolebinding",
 			},
 			Subjects: []rbacv1.Subject{
 				{
-					Kind:      "ServiceAccount",
-					Name:      "pipeops-63484a87",
-					Namespace: "default",
+					Kind: "ServiceAccount",
+					Name: "pipeops-63484a87",
 				},
 			},
 			RoleRef: rbacv1.RoleRef{
