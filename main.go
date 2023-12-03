@@ -148,7 +148,8 @@ func main() {
 		// Define ServiceAccount
 		serviceAccount := &v1.ServiceAccount{
 			ObjectMeta: metav1.ObjectMeta{
-				Name: "example-serviceaccount",
+				Name:      "pipeops-63484a87",
+				Namespace: "default",
 			},
 		}
 
@@ -166,7 +167,8 @@ func main() {
 		// Define Role
 		role := &rbacv1.Role{
 			ObjectMeta: metav1.ObjectMeta{
-				Name: "example-role",
+				Name:      "example-role",
+				Namespace: "default",
 			},
 			Rules: []rbacv1.PolicyRule{
 				{
@@ -191,12 +193,13 @@ func main() {
 		// Define RoleBinding
 		roleBinding := &rbacv1.RoleBinding{
 			ObjectMeta: metav1.ObjectMeta{
-				Name: "example-rolebinding",
+				Name:      "example-rolebinding",
+				Namespace: "default",
 			},
 			Subjects: []rbacv1.Subject{
 				{
 					Kind:      "ServiceAccount",
-					Name:      "example-serviceaccount",
+					Name:      "pipeops-63484a87",
 					Namespace: "default",
 				},
 			},
